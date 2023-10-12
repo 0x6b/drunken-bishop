@@ -1,8 +1,22 @@
 [package]
 name = "drunken-bishop"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2021"
 description = "OpenSSH fingerprint visualization algorithm in Rust."
-authors = ["0x6b <k@warpnine.io>"]
+authors = ["kaoru <k@warpnine.io>"]
+license = "MIT"
+
+[[bin]]
+name = "drunken-bishop"
+path = "src/main.rs"
+
+[lib]
+name = "drunken_bishop"
+path = "src/lib.rs"
 
 [dependencies]
+# Command line argument parsing
+clap = { version = "4.4.6", features = ["derive"] }
+
+# SHA-256 hashing
+sha256 = { version = "1.4.0", default-features = false }
