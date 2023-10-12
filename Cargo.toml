@@ -1,0 +1,8 @@
+[package]
+name = "drunken-bishop"
+version = "0.1.0"
+edition = "2021"
+description = "OpenSSH fingerprint visualization algorithm in Rust."
+authors = ["0x6b <k@warpnine.io>"]
+
+[dependencies]
