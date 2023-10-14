@@ -15,7 +15,7 @@ OpenSSH fingerprint visualization algorithm in Rust.
 Usage: drunken-bishop [OPTIONS] [STRING]...
 
 Arguments:
-  [STRING]...  Strings to visualize. All strings will be joined with a space
+  [STRING]...  Strings to visualize. All strings will be joined with a space. If none, read from stdin
 
 Options:
   -s, --sha256   Use SHA-256 digest of given string
