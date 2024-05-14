@@ -16,10 +16,10 @@ path = "src/lib.rs"
 
 [dependencies]
 # Command line argument parsing
-clap = { version = "4.4.6", features = ["derive"] }
+clap = { version = "4.5.4", features = ["derive"] }
 
 # SHA-256 hashing
-sha256 = { version = "1.4.0", default-features = false }
+sha256 = { version = "1.5.0", default-features = false }
 
 # Logging
 log = "0.4.21"
