@@ -1,22 +1,26 @@
-use clap::Parser;
-use drunken_bishop::World;
-use sha256::digest;
 use std::io;
 use std::io::Read;
+
+use clap::Parser;
+use log::debug;
+use sha256::digest;
+use tracing::Level;
+
+use drunken_bishop::World;
 
 #[derive(Parser)]
 #[clap(about, version)]
 struct Args {
     /// Strings to visualize. All strings will be joined with a space. If none, read from stdin.
-    #[clap()]
+    #[arg()]
     string: Vec<String>,
 
     /// Use SHA-256 digest of given string
-    #[clap(short, long)]
+    #[arg(short, long)]
     sha256: bool,
 
     /// Verbose output
-    #[clap(short, long)]
+    #[arg(short, long)]
     verbose: bool,
 }
 
@@ -26,22 +30,20 @@ pub fn main() {
         sha256,
         verbose,
     } = Args::parse();
+
+    tracing_subscriber::fmt()
+        .with_max_level(if verbose { Level::DEBUG } else { Level::INFO })
+        .init();
+
     let mut input = get_input(&string);
 
-    if verbose {
-        println!("- Input string  : {input}");
-    }
+    debug!("Input string: {input}");
+    debug!("SHA-256: {sha256}");
+    debug!("Verbose: {verbose}");
 
     if sha256 {
         input = digest(input);
-
-        if verbose {
-            println!("- SHA-256 digest: {input}");
-        }
-    }
-
-    if verbose {
-        println!("- Drunken bishop:");
+        debug!("SHA-256 digest: {input}");
     }
 
     println!("{}", World::from(&input))
