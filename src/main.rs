@@ -1,12 +1,10 @@
-use std::io;
-use std::io::Read;
+use std::{io, io::Read};
 
 use clap::Parser;
+use drunken_bishop::World;
 use log::debug;
 use sha256::digest;
 use tracing::Level;
-
-use drunken_bishop::World;
 
 #[derive(Parser)]
 #[clap(about, version)]
@@ -25,11 +23,7 @@ struct Args {
 }
 
 pub fn main() {
-    let Args {
-        string,
-        sha256,
-        verbose,
-    } = Args::parse();
+    let Args { string, sha256, verbose } = Args::parse();
 
     tracing_subscriber::fmt()
         .with_max_level(if verbose { Level::DEBUG } else { Level::INFO })
