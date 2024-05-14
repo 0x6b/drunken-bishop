@@ -49,16 +49,16 @@ pub fn main() {
     println!("{}", World::from(&input))
 }
 
-fn get_input(arg: &[String]) -> String {
-    let mut input = arg.join(" ");
+fn get_input(args: &[String]) -> String {
+    let input = args.join(" ");
 
     if input.trim().is_empty() {
         let mut stdin = String::new();
         io::stdin()
             .read_to_string(&mut stdin)
             .expect("Unable to read from stdin");
-        input = stdin;
+        stdin
+    } else {
+        input
     }
-
-    input
 }
