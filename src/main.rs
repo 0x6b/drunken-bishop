@@ -45,14 +45,15 @@ pub fn main() {
 
 fn get_input(args: &[String]) -> String {
     let input = args.join(" ");
+    let input = input.trim();
 
-    if input.trim().is_empty() {
+    if input.is_empty() {
         let mut stdin = String::new();
         io::stdin()
             .read_to_string(&mut stdin)
             .expect("Unable to read from stdin");
         stdin
     } else {
-        input
+        input.to_string()
     }
 }
