@@ -1,4 +1,4 @@
-use crate::{types::direction::Direction, HEIGHT, WIDTH};
+use crate::{direction::Direction, HEIGHT, WIDTH};
 
 #[derive(Clone)]
 pub(crate) struct Position {

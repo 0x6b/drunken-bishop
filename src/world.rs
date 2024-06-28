@@ -1,9 +1,6 @@
 use std::{fmt::Display, str::from_utf8};
 
-use crate::{
-    types::{direction::Direction, position::Position, symbols::Symbols},
-    HEIGHT, WIDTH,
-};
+use crate::{direction::Direction, position::Position, symbols::Symbols, HEIGHT, WIDTH};
 
 pub struct World {
     pub map: Vec<Vec<u8>>,
