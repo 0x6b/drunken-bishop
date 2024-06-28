@@ -1,4 +1,7 @@
-use std::{fmt::Display, str::from_utf8};
+use std::{
+    fmt::{Display, Formatter, Result},
+    str::from_utf8,
+};
 
 use crate::{direction::Direction, position::Position, symbols::Symbols, HEIGHT, WIDTH};
 
@@ -50,7 +53,7 @@ impl World {
 }
 
 impl Display for World {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result {
         let mut drawing = String::with_capacity(WIDTH * HEIGHT);
         let border = format!("+{}+", "-".repeat(WIDTH));
 

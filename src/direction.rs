@@ -1,5 +1,7 @@
 use std::ops::Deref;
 
+use crate::direction::Direction::{DownLeft, DownRight, UpLeft, UpRight};
+
 pub(crate) enum Direction {
     UpLeft,    // ↖
     UpRight,   // ↗
@@ -10,10 +12,10 @@ pub(crate) enum Direction {
 impl Direction {
     pub(crate) fn from(value: u8) -> Self {
         match value {
-            0 => Self::UpLeft,
-            1 => Self::UpRight,
-            2 => Self::DownLeft,
-            3 => Self::DownRight,
+            0 => UpLeft,
+            1 => UpRight,
+            2 => DownLeft,
+            3 => DownRight,
             _ => panic!("Invalid direction"),
         }
     }
@@ -24,10 +26,10 @@ impl Deref for Direction {
 
     fn deref(&self) -> &Self::Target {
         match self {
-            Self::UpLeft => &(-1, -1),
-            Self::UpRight => &(1, -1),
-            Self::DownLeft => &(-1, 1),
-            Self::DownRight => &(1, 1),
+            UpLeft => &(-1, -1),
+            UpRight => &(1, -1),
+            DownLeft => &(-1, 1),
+            DownRight => &(1, 1),
         }
     }
 }
