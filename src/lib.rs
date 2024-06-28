@@ -1,5 +1,8 @@
-pub use types::world::World; // re-export World type
-mod types;
+pub use world::World; // re-export World type
+pub(crate) mod direction;
+pub(crate) mod position;
+pub(crate) mod symbols;
+pub(crate) mod world;
 
 const WIDTH: usize = 17;
 const HEIGHT: usize = 9;
