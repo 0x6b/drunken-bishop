@@ -2,6 +2,7 @@ use std::{
     error::Error,
     fmt,
     fmt::{Display, Formatter},
+    result,
 };
 
 pub(crate) const WIDTH: usize = 17;
@@ -38,12 +39,12 @@ impl Error for ParseHexError {}
 
 impl World {
     /// Create a new world from a sequence of hexadecimal digits.
-    pub fn from_hex(s: &str) -> std::result::Result<Self, ParseHexError> {
+    pub fn from_hex(s: &str) -> result::Result<Self, ParseHexError> {
         let moves = Self::parse_commands(s)?;
         Ok(Self::simulate(&moves))
     }
 
-    fn parse_commands(s: &str) -> std::result::Result<Vec<Direction>, ParseHexError> {
+    fn parse_commands(s: &str) -> result::Result<Vec<Direction>, ParseHexError> {
         s.len()
             .is_multiple_of(2)
             .then_some(())
@@ -55,7 +56,7 @@ impl World {
             .map(|(index, byte)| {
                 hex_value(*byte).ok_or(ParseHexError::InvalidDigit { index, byte: *byte })
             })
-            .collect::<std::result::Result<Vec<_>, _>>()
+            .collect::<result::Result<Vec<_>, _>>()
             .map(|digits| {
                 digits
                     .chunks_exact(2)
@@ -99,7 +100,7 @@ impl World {
 impl TryFrom<&str> for World {
     type Error = ParseHexError;
 
-    fn try_from(value: &str) -> std::result::Result<Self, Self::Error> {
+    fn try_from(value: &str) -> result::Result<Self, Self::Error> {
         Self::from_hex(value)
     }
 }

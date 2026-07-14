@@ -1,7 +1,11 @@
-use std::{io, io::Read};
+use std::{
+    error::Error,
+    io::{self, Read},
+    process::ExitCode,
+};
 
 use clap::Parser;
-use drunken_bishop::World;
+use drunken_bishop::{ParseHexError, World};
 use log::debug;
 use sha256::digest;
 use tracing::Level;
@@ -23,12 +27,22 @@ struct Args {
     verbose: bool,
 }
 
-pub fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let Args {
-        string,
-        sha256,
-        verbose,
-    } = Args::parse();
+pub fn main() -> ExitCode {
+    run().map_or_else(
+        |error| {
+            let hint = error
+                .downcast_ref::<ParseHexError>()
+                .map(|_| "\nHint: use -s or --sha256 to visualize arbitrary text instead.")
+                .unwrap_or_default();
+            eprintln!("Error: {error}{hint}");
+            ExitCode::FAILURE
+        },
+        |()| ExitCode::SUCCESS,
+    )
+}
+
+fn run() -> Result<(), Box<dyn Error>> {
+    let Args { string, sha256, verbose } = Args::parse();
 
     fmt()
         .with_max_level(if verbose { Level::DEBUG } else { Level::INFO })
