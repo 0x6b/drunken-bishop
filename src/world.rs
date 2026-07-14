@@ -3,7 +3,7 @@ use std::{
     str::from_utf8,
 };
 
-use crate::{direction::Direction, position::Position, symbols::Symbols, HEIGHT, WIDTH};
+use crate::{HEIGHT, WIDTH, direction::Direction, position::Position, symbols::Symbols};
 
 pub struct World {
     pub map: Vec<Vec<u8>>,

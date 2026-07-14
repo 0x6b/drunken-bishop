@@ -7,7 +7,6 @@ use sha256::digest;
 use tracing::Level;
 use tracing_subscriber::fmt;
 
-
 #[derive(Parser)]
 #[clap(about, version)]
 struct Args {
@@ -42,7 +41,7 @@ pub fn main() {
         debug!("SHA-256 digest: {input}");
     }
 
-    println!("{}", World::from(&input))
+    println!("{}", World::from(&input));
 }
 
 fn get_input(args: &[String]) -> String {
