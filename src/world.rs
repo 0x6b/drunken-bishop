@@ -1,9 +1,12 @@
 use std::{
     error::Error,
-    fmt::{Display, Formatter, Result},
+    fmt,
+    fmt::{Display, Formatter},
 };
 
-use crate::{Direction, HEIGHT, Position, Symbols, WIDTH};
+pub(crate) const WIDTH: usize = 17;
+pub(crate) const HEIGHT: usize = 9;
+pub(crate) const MAX_VISITS: u8 = 14;
 
 pub struct World {
     visits: [[u8; WIDTH]; HEIGHT],
@@ -18,7 +21,7 @@ pub enum ParseHexError {
 }
 
 impl Display for ParseHexError {
-    fn fmt(&self, f: &mut Formatter<'_>) -> Result {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         match self {
             Self::OddLength => {
                 f.write_str("hexadecimal input must contain an even number of digits")
@@ -75,11 +78,20 @@ impl World {
 
         moves.iter().for_each(|dir| {
             let visits = &mut world.visits[world.end.y][world.end.x];
-            *visits = visits.saturating_add(1).min(Symbols::MAX_VISITS);
+            *visits = visits.saturating_add(1).min(MAX_VISITS);
             world.end = world.end.apply(dir);
         });
 
         world
+    }
+
+    pub(crate) fn symbol_at(&self, x: usize, y: usize) -> Cell {
+        let position = Position { x, y };
+        match (position == self.end, position == self.start) {
+            (true, _) => Cell::End,
+            (false, true) => Cell::Start,
+            (false, false) => Cell::Visits(self.visits[y][x]),
+        }
     }
 }
 
@@ -100,33 +112,56 @@ fn hex_value(byte: u8) -> Option<u8> {
     }
 }
 
-impl Display for World {
-    fn fmt(&self, f: &mut Formatter<'_>) -> Result {
-        let mut drawing = String::with_capacity(WIDTH * HEIGHT);
-        let border = format!("+{}+", "-".repeat(WIDTH));
+pub(crate) enum Cell {
+    Visits(u8),
+    Start,
+    End,
+}
 
-        drawing.push_str(&border);
-        drawing.push('\n');
+enum Direction {
+    UpLeft,
+    UpRight,
+    DownLeft,
+    DownRight,
+}
 
-        (0..HEIGHT).for_each(|y| {
-            drawing.push('|');
-            (0..WIDTH).for_each(|x| {
-                let position = Position { x, y };
-                let symbol = if position == self.end {
-                    'E'
-                } else if position == self.start {
-                    'S'
-                } else {
-                    Symbols::get(&self.visits[y][x])
-                };
-                drawing.push(symbol);
-            });
-            drawing.push('|');
-            drawing.push('\n');
-        });
+impl Direction {
+    fn from(value: u8) -> Self {
+        match value {
+            0 => Self::UpLeft,
+            1 => Self::UpRight,
+            2 => Self::DownLeft,
+            3 => Self::DownRight,
+            _ => unreachable!("directions are encoded with two bits"),
+        }
+    }
 
-        drawing.push_str(&border);
+    fn delta(&self) -> (isize, isize) {
+        match self {
+            Self::UpLeft => (-1, -1),
+            Self::UpRight => (1, -1),
+            Self::DownLeft => (-1, 1),
+            Self::DownRight => (1, 1),
+        }
+    }
+}
 
-        write!(f, "{drawing}")
+#[derive(Clone, Copy, Eq, PartialEq)]
+struct Position {
+    x: usize,
+    y: usize,
+}
+
+impl Position {
+    fn new(x: isize, y: isize) -> Self {
+        Self {
+            x: x.clamp(0, (WIDTH - 1) as isize) as usize,
+            y: y.clamp(0, (HEIGHT - 1) as isize) as usize,
+        }
+    }
+
+    fn apply(&self, dir: &Direction) -> Position {
+        let (dx, dy) = dir.delta();
+        Position::new(self.x as isize + dx, self.y as isize + dy)
     }
 }

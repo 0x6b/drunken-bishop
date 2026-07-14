@@ -1,18 +1,7 @@
-mod direction;
-mod position;
-mod symbols;
+mod render;
 mod world;
 
-pub(crate) use direction::{
-    Direction,
-    Direction::{DownLeft, DownRight, UpLeft, UpRight},
-};
-pub(crate) use position::Position;
-pub(crate) use symbols::Symbols;
 pub use world::{ParseHexError, World};
-
-const WIDTH: usize = 17;
-const HEIGHT: usize = 9;
 
 #[cfg(test)]
 mod test {
