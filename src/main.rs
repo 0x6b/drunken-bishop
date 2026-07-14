@@ -5,6 +5,8 @@ use drunken_bishop::World;
 use log::debug;
 use sha256::digest;
 use tracing::Level;
+use tracing_subscriber::fmt;
+
 
 #[derive(Parser)]
 #[clap(about, version)]
@@ -25,7 +27,7 @@ struct Args {
 pub fn main() {
     let Args { string, sha256, verbose } = Args::parse();
 
-    tracing_subscriber::fmt()
+    fmt()
         .with_max_level(if verbose { Level::DEBUG } else { Level::INFO })
         .init();
 
