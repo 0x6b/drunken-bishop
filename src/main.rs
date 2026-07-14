@@ -23,8 +23,12 @@ struct Args {
     verbose: bool,
 }
 
-pub fn main() {
-    let Args { string, sha256, verbose } = Args::parse();
+pub fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let Args {
+        string,
+        sha256,
+        verbose,
+    } = Args::parse();
 
     fmt()
         .with_max_level(if verbose { Level::DEBUG } else { Level::INFO })
@@ -41,7 +45,8 @@ pub fn main() {
         debug!("SHA-256 digest: {input}");
     }
 
-    println!("{}", World::from(&input));
+    println!("{}", World::try_from(input.trim())?);
+    Ok(())
 }
 
 fn get_input(args: &[String]) -> String {

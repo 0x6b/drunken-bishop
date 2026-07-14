@@ -1,6 +1,6 @@
 use std::{
+    error::Error,
     fmt::{Display, Formatter, Result, Write},
-    str::from_utf8,
 };
 
 use crate::{Direction, HEIGHT, Position, Symbols, WIDTH};
@@ -10,32 +10,66 @@ pub struct World {
     moves: Vec<Direction>,
 }
 
+#[derive(Debug, Eq, PartialEq)]
+pub enum ParseHexError {
+    OddLength,
+    InvalidDigit { index: usize, byte: u8 },
+}
+
+impl Display for ParseHexError {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result {
+        match self {
+            Self::OddLength => {
+                f.write_str("hexadecimal input must contain an even number of digits")
+            }
+            Self::InvalidDigit { index, byte } => {
+                write!(f, "invalid hexadecimal digit {:?} at byte {index}", *byte as char)
+            }
+        }
+    }
+}
+
+impl Error for ParseHexError {}
+
 impl World {
-    /// Create a new world from a string, expecting a sequence of hexadecimal digits.
-    pub fn from(s: &str) -> Self {
+    /// Create a new world from a sequence of hexadecimal digits.
+    pub fn from_hex(s: &str) -> std::result::Result<Self, ParseHexError> {
         let mut world = Self {
             map: vec![vec![0u8; WIDTH]; HEIGHT],
-            moves: Self::parse_commands(s),
+            moves: Self::parse_commands(s)?,
         };
         world.simulate();
-        world
+        Ok(world)
     }
 
-    fn parse_commands(s: &str) -> Vec<Direction> {
+    fn parse_commands(s: &str) -> std::result::Result<Vec<Direction>, ParseHexError> {
+        s.len()
+            .is_multiple_of(2)
+            .then_some(())
+            .ok_or(ParseHexError::OddLength)?;
+
         s.as_bytes()
-            .chunks(2)
-            .flat_map(|pair| from_utf8(pair))
-            .flat_map(|str| u8::from_str_radix(str, 16))
-            .flat_map(|value| {
-                [
-                    (value & 0b0000_0011),
-                    (value >> 2 & 0b0000_0011),
-                    (value >> 4 & 0b0000_0011),
-                    (value >> 6 & 0b0000_0011),
-                ]
+            .iter()
+            .enumerate()
+            .map(|(index, byte)| {
+                hex_value(*byte).ok_or(ParseHexError::InvalidDigit { index, byte: *byte })
             })
-            .map(Direction::from)
-            .collect::<Vec<_>>()
+            .collect::<std::result::Result<Vec<_>, _>>()
+            .map(|digits| {
+                digits
+                    .chunks_exact(2)
+                    .flat_map(|pair| {
+                        let value = pair[0] << 4 | pair[1];
+                        [
+                            (value & 0b0000_0011),
+                            (value >> 2 & 0b0000_0011),
+                            (value >> 4 & 0b0000_0011),
+                            (value >> 6 & 0b0000_0011),
+                        ]
+                        .map(Direction::from)
+                    })
+                    .collect()
+            })
     }
 
     fn simulate(&mut self) {
@@ -49,6 +83,23 @@ impl World {
 
         self.map[start.y][start.x] = 15; // Set `S`tart
         self.map[end.y][end.x] = 16; // Set `E`nd
+    }
+}
+
+impl TryFrom<&str> for World {
+    type Error = ParseHexError;
+
+    fn try_from(value: &str) -> std::result::Result<Self, Self::Error> {
+        Self::from_hex(value)
+    }
+}
+
+fn hex_value(byte: u8) -> Option<u8> {
+    match byte {
+        b'0'..=b'9' => Some(byte - b'0'),
+        b'a'..=b'f' => Some(byte - b'a' + 10),
+        b'A'..=b'F' => Some(byte - b'A' + 10),
+        _ => None,
     }
 }
 
