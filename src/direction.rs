@@ -1,6 +1,6 @@
 use std::ops::Deref;
 
-use crate::direction::Direction::{DownLeft, DownRight, UpLeft, UpRight};
+use crate::{DownLeft, DownRight, UpLeft, UpRight};
 
 pub(crate) enum Direction {
     UpLeft,    // ↖

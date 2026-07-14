@@ -1,8 +1,15 @@
+mod direction;
+mod position;
+mod symbols;
+mod world;
+
+pub(crate) use direction::{
+    Direction,
+    Direction::{DownLeft, DownRight, UpLeft, UpRight},
+};
+pub(crate) use position::Position;
+pub(crate) use symbols::Symbols;
 pub use world::World; // re-export World type
-pub(crate) mod direction;
-pub(crate) mod position;
-pub(crate) mod symbols;
-pub(crate) mod world;
 
 const WIDTH: usize = 17;
 const HEIGHT: usize = 9;
