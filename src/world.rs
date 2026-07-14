@@ -1,5 +1,5 @@
 use std::{
-    fmt::{Display, Formatter, Result},
+    fmt::{Display, Formatter, Result, Write},
     str::from_utf8,
 };
 
@@ -61,15 +61,16 @@ impl Display for World {
         drawing.push('\n');
 
         (0..HEIGHT).for_each(|i| {
-            drawing.push_str(&format!(
-                "|{}|\n",
+            let _ = writeln!(
+                drawing,
+                "|{}|",
                 self.map[i]
                     .iter()
                     .map(Symbols::get)
                     .map(String::from)
                     .collect::<Vec<_>>()
                     .join("")
-            ));
+            );
         });
 
         drawing.push_str(&border);
