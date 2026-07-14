@@ -5,7 +5,7 @@ pub use world::{ParseHexError, World};
 
 #[cfg(test)]
 mod test {
-    use crate::World;
+    use crate::{ParseHexError, World};
 
     #[test]
     fn test1() {
@@ -66,8 +66,18 @@ mod test {
 
     #[test]
     fn rejects_invalid_hexadecimal_input() {
-        assert!(World::try_from("xyz").is_err());
+        assert_eq!(World::try_from("xyz").err().unwrap(), ParseHexError::OddLength { length: 3 });
         assert!(World::try_from("0g").is_err());
+    }
+
+    #[test]
+    fn explains_how_to_fix_odd_length_input() {
+        let error = World::try_from("abc").err().unwrap();
+
+        assert_eq!(
+            error.to_string(),
+            "hexadecimal input has 3 digits; add or remove one digit to make complete byte pairs"
+        );
     }
 
     #[test]

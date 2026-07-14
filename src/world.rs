@@ -16,16 +16,17 @@ pub struct World {
 
 #[derive(Debug, Eq, PartialEq)]
 pub enum ParseHexError {
-    OddLength,
+    OddLength { length: usize },
     InvalidDigit { index: usize, byte: u8 },
 }
 
 impl Display for ParseHexError {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         match self {
-            Self::OddLength => {
-                f.write_str("hexadecimal input must contain an even number of digits")
-            }
+            Self::OddLength { length } => write!(
+                f,
+                "hexadecimal input has {length} digits; add or remove one digit to make complete byte pairs"
+            ),
             Self::InvalidDigit { index, byte } => {
                 write!(f, "invalid hexadecimal digit {:?} at byte {index}", *byte as char)
             }
@@ -46,7 +47,7 @@ impl World {
         s.len()
             .is_multiple_of(2)
             .then_some(())
-            .ok_or(ParseHexError::OddLength)?;
+            .ok_or(ParseHexError::OddLength { length: s.len() })?;
 
         s.as_bytes()
             .iter()
