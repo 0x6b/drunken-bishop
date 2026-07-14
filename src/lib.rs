@@ -80,4 +80,12 @@ mod test {
         assert!(World::try_from("xyz").is_err());
         assert!(World::try_from("0g").is_err());
     }
+
+    #[test]
+    fn saturates_frequently_visited_cells() {
+        let input = "1b".repeat(100);
+        let drawing = World::try_from(input.as_str()).unwrap().to_string();
+
+        assert_eq!(drawing.lines().nth(6).unwrap().chars().nth(10), Some('^'));
+    }
 }

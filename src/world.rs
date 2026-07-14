@@ -74,7 +74,8 @@ impl World {
         let mut world = Self { visits: [[0; WIDTH]; HEIGHT], start, end: start };
 
         moves.iter().for_each(|dir| {
-            world.visits[world.end.y][world.end.x] += 1;
+            let visits = &mut world.visits[world.end.y][world.end.x];
+            *visits = visits.saturating_add(1).min(Symbols::MAX_VISITS);
             world.end = world.end.apply(dir);
         });
 
