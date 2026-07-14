@@ -1,10 +1,15 @@
-use std::{io, io::Read};
+use std::{
+    error::Error,
+    io::{self, Read},
+    process::ExitCode,
+};
 
 use clap::Parser;
-use drunken_bishop::World;
+use drunken_bishop::{ParseHexError, World};
 use log::debug;
 use sha256::digest;
 use tracing::Level;
+use tracing_subscriber::fmt;
 
 #[derive(Parser)]
 #[clap(about, version)]
@@ -22,10 +27,24 @@ struct Args {
     verbose: bool,
 }
 
-pub fn main() {
+pub fn main() -> ExitCode {
+    run().map_or_else(
+        |error| {
+            let hint = error
+                .downcast_ref::<ParseHexError>()
+                .map(|_| "\nHint: use -s or --sha256 to visualize arbitrary text instead.")
+                .unwrap_or_default();
+            eprintln!("Error: {error}{hint}");
+            ExitCode::FAILURE
+        },
+        |()| ExitCode::SUCCESS,
+    )
+}
+
+fn run() -> Result<(), Box<dyn Error>> {
     let Args { string, sha256, verbose } = Args::parse();
 
-    tracing_subscriber::fmt()
+    fmt()
         .with_max_level(if verbose { Level::DEBUG } else { Level::INFO })
         .init();
 
@@ -40,7 +59,8 @@ pub fn main() {
         debug!("SHA-256 digest: {input}");
     }
 
-    println!("{}", World::from(&input))
+    println!("{}", World::try_from(input.trim())?);
+    Ok(())
 }
 
 fn get_input(args: &[String]) -> String {
