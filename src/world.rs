@@ -1,13 +1,14 @@
 use std::{
     error::Error,
-    fmt::{Display, Formatter, Result, Write},
+    fmt::{Display, Formatter, Result},
 };
 
 use crate::{Direction, HEIGHT, Position, Symbols, WIDTH};
 
 pub struct World {
-    pub map: Vec<Vec<u8>>,
-    moves: Vec<Direction>,
+    visits: [[u8; WIDTH]; HEIGHT],
+    start: Position,
+    end: Position,
 }
 
 #[derive(Debug, Eq, PartialEq)]
@@ -34,12 +35,8 @@ impl Error for ParseHexError {}
 impl World {
     /// Create a new world from a sequence of hexadecimal digits.
     pub fn from_hex(s: &str) -> std::result::Result<Self, ParseHexError> {
-        let mut world = Self {
-            map: vec![vec![0u8; WIDTH]; HEIGHT],
-            moves: Self::parse_commands(s)?,
-        };
-        world.simulate();
-        Ok(world)
+        let moves = Self::parse_commands(s)?;
+        Ok(Self::simulate(&moves))
     }
 
     fn parse_commands(s: &str) -> std::result::Result<Vec<Direction>, ParseHexError> {
@@ -72,17 +69,16 @@ impl World {
             })
     }
 
-    fn simulate(&mut self) {
-        let start = Position::new(8, 4);
-        let mut end = start.clone();
+    fn simulate(moves: &[Direction]) -> Self {
+        let start = Position::new((WIDTH / 2) as isize, (HEIGHT / 2) as isize);
+        let mut world = Self { visits: [[0; WIDTH]; HEIGHT], start, end: start };
 
-        self.moves.iter().for_each(|dir| {
-            self.map[end.y][end.x] += 1;
-            end = end.apply(dir);
+        moves.iter().for_each(|dir| {
+            world.visits[world.end.y][world.end.x] += 1;
+            world.end = world.end.apply(dir);
         });
 
-        self.map[start.y][start.x] = 15; // Set `S`tart
-        self.map[end.y][end.x] = 16; // Set `E`nd
+        world
     }
 }
 
@@ -111,17 +107,21 @@ impl Display for World {
         drawing.push_str(&border);
         drawing.push('\n');
 
-        (0..HEIGHT).for_each(|i| {
-            let _ = writeln!(
-                drawing,
-                "|{}|",
-                self.map[i]
-                    .iter()
-                    .map(Symbols::get)
-                    .map(String::from)
-                    .collect::<Vec<_>>()
-                    .join("")
-            );
+        (0..HEIGHT).for_each(|y| {
+            drawing.push('|');
+            (0..WIDTH).for_each(|x| {
+                let position = Position { x, y };
+                let symbol = if position == self.end {
+                    'E'
+                } else if position == self.start {
+                    'S'
+                } else {
+                    Symbols::get(&self.visits[y][x])
+                };
+                drawing.push(symbol);
+            });
+            drawing.push('|');
+            drawing.push('\n');
         });
 
         drawing.push_str(&border);

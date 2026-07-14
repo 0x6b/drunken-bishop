@@ -1,6 +1,6 @@
 use crate::{Direction, HEIGHT, WIDTH};
 
-#[derive(Clone)]
+#[derive(Clone, Copy, Eq, PartialEq)]
 pub(crate) struct Position {
     pub(crate) x: usize,
     pub(crate) y: usize,
