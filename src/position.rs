@@ -15,6 +15,7 @@ impl Position {
     }
 
     pub(crate) fn apply(&self, dir: &Direction) -> Position {
-        Position::new(self.x as isize + dir.0, self.y as isize + dir.1)
+        let (dx, dy) = dir.delta();
+        Position::new(self.x as isize + dx, self.y as isize + dy)
     }
 }
